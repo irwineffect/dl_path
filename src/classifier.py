@@ -17,21 +17,22 @@ class Classifier:
         #Size of images
         self.IMAGE_WIDTH = 224
         self.IMAGE_HEIGHT = 224
+        prefix = "/home/jirwin/ros/src/dl_path/models/"
 
         '''
         Reading mean image, caffe model and its weights 
         '''
         #Read mean image
         mean_blob = caffe_pb2.BlobProto()
-        with open('/home/james/external/trained_models/lrf_hallway_full/mean.binaryproto') as f:
+        with open(prefix + 'mean.binaryproto') as f:
             mean_blob.ParseFromString(f.read())
         mean_array = np.asarray(mean_blob.data, dtype=np.float32).reshape(
             (mean_blob.channels, mean_blob.height, mean_blob.width))
 
 
         #Read model architecture and trained model's weights
-        self.net = caffe.Net('/home/james/external/trained_models/lrf_hallway_full/caffenet_deploy.prototxt',
-                        '/home/james/external/trained_models/lrf_hallway_full/lrf_hallway_full.caffemodel',
+        self.net = caffe.Net(prefix + 'caffenet_deploy.prototxt',
+                        prefix + 'lrf_hallway_full.caffemodel',
                         caffe.TEST)
 
         #Define image transformers
