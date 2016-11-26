@@ -3,6 +3,7 @@
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Image
+from dl_path.msg import lrf
 import cv2
 import numpy as np
 from intro_to_robotics.image_converter import ToOpenCV, depthToOpenCV
@@ -11,14 +12,15 @@ from classifier import Classifier
 
 class Node:
     def __init__(self):
-        self.forward_p = 0.2
-        self.rotate_p = 0.2
+        self.forward_p = 0.0
+        self.rotate_p = 0.0
 
+        self.classifier = Classifier()
         #register a subscriber callback that receives images
         self.image_sub = rospy.Subscriber('image', Image, self.image_callback, queue_size=1)
 
         self.movement_pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist, queue_size=1)
-        self.classifier = Classifier()
+        self.prob_pub = rospy.Publisher('classes', lrf, queue_size=1)
 
     def image_callback(self, ros_image):
         # convert the ros image to a format openCV can use
@@ -26,7 +28,14 @@ class Node:
         cv2.imshow("image", cv_image)
         cv2.waitKey(1)
         
-        probs = self.classifier.classify(cv_image)
+        #probs = self.classifier.classify(cv_image)
+        probs = [0.,0.,0.]
+        class_msg = lrf()
+        class_msg.left = probs[0]
+        class_msg.forward = probs[1]
+        class_msg.right = probs[2]
+
+        self.prob_pub.publish(class_msg) 
 
         rospy.logdebug("probabilities:\nleft: {:1.3f}\nforward: {:1.3f}\nright: {:1.3f}".format(probs[0], probs[1], probs[2]))
 
@@ -39,7 +48,7 @@ class Node:
         cmd.angular.z = rotate_certainty * self.rotate_p 
 
         #publish command to the turtlebot
-        self.movement_pub.publish(cmd)
+        #self.movement_pub.publish(cmd)
 
 
 if __name__ == "__main__":
