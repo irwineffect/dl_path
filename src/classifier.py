@@ -17,7 +17,7 @@ class Classifier:
         #Size of images
         self.IMAGE_WIDTH = 224
         self.IMAGE_HEIGHT = 224
-        prefix = "/home/jirwin/ros/src/dl_path/models/"
+        prefix = "/home/james/ros/src/dl_path/models/"
 
         '''
         Reading mean image, caffe model and its weights 
